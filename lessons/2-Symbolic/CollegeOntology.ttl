@@ -1,0 +1,693 @@
+@prefix uni: <http://www.example.com/university.owl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+uni: a owl:Ontology .
+
+# ============================================================
+# Classes
+# ============================================================
+
+uni:Person a owl:Class .
+
+uni:Student a owl:Class ;
+    rdfs:subClassOf uni:Person ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty uni:enrolledIn ;
+        owl:someValuesFrom uni:Course
+    ] .
+
+uni:Professor a owl:Class ;
+    rdfs:subClassOf uni:Person ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty uni:teaches ;
+        owl:someValuesFrom uni:Course
+    ] .
+
+uni:Staff a owl:Class ;
+    rdfs:subClassOf uni:Person .
+
+uni:Course a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty uni:taughtBy ;
+        owl:someValuesFrom uni:Professor
+    ] .
+
+uni:Department a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty uni:offersCourse ;
+        owl:someValuesFrom uni:Course
+    ] .
+
+uni:Building a owl:Class .
+
+uni:Library a owl:Class ;
+    rdfs:subClassOf uni:Building .
+
+uni:Lab a owl:Class ;
+    rdfs:subClassOf uni:Building .
+
+uni:LectureHall a owl:Class ;
+    rdfs:subClassOf uni:Building .
+
+uni:Dormitory a owl:Class ;
+    rdfs:subClassOf uni:Building .
+
+uni:Faculty a owl:Class ;
+    rdfs:subClassOf uni:Building .
+
+# ============================================================
+# Object Properties
+# ============================================================
+
+# Enrollment relationships
+uni:enrolledIn a owl:ObjectProperty ;
+    rdfs:domain uni:Student ;
+    rdfs:range uni:Course .
+
+uni:teaches a owl:ObjectProperty ;
+    rdfs:domain uni:Professor ;
+    rdfs:range uni:Course .
+
+uni:taughtBy a owl:ObjectProperty ;
+    owl:inverseOf uni:teaches ;
+    rdfs:domain uni:Course ;
+    rdfs:range uni:Professor .
+
+# Department relationships
+uni:belongsToDepartment a owl:ObjectProperty ;
+    rdfs:domain uni:Person ;
+    rdfs:range uni:Department .
+
+uni:offersCourse a owl:ObjectProperty ;
+    rdfs:domain uni:Department ;
+    rdfs:range uni:Course .
+
+uni:headedBy a owl:ObjectProperty ;
+    rdfs:domain uni:Department ;
+    rdfs:range uni:Professor .
+
+# Building relationships
+uni:locatedIn a owl:ObjectProperty ;
+    rdfs:domain uni:Course ;
+    rdfs:range uni:Building .
+
+uni:containsLab a owl:ObjectProperty ;
+    rdfs:domain uni:Department ;
+    rdfs:range uni:Lab .
+
+# Prerequisite relationships
+uni:hasPrerequisite a owl:ObjectProperty ;
+    rdfs:domain uni:Course ;
+    rdfs:range uni:Course .
+
+# Advisor relationships
+uni:advisedBy a owl:ObjectProperty ;
+    rdfs:domain uni:Student ;
+    rdfs:range uni:Professor .
+
+# Property chain axioms for inference
+# A student's department is the department of the course they are enrolled in
+uni:memberOfDepartment a owl:ObjectProperty ;
+    owl:propertyChainAxiom ( uni:enrolledIn uni:belongsToDepartment ) .
+
+# A professor's department is the department that offers their course
+uni:memberOfDepartment a owl:ObjectProperty ;
+    owl:propertyChainAxiom ( uni:teaches uni:belongsToDepartment ) .
+
+# ============================================================
+# Data Properties
+# ============================================================
+
+uni:name a owl:DatatypeProperty ;
+    rdfs:domain uni:Person ;
+    rdfs:range xsd:string .
+
+uni:studentID a owl:DatatypeProperty ;
+    rdfs:domain uni:Student ;
+    rdfs:range xsd:string .
+
+uni:employeeID a owl:DatatypeProperty ;
+    rdfs:domain uni:Person ;
+    rdfs:range xsd:string .
+
+uni:courseCode a owl:DatatypeProperty ;
+    rdfs:domain uni:Course ;
+    rdfs:range xsd:string .
+
+uni:credits a owl:DatatypeProperty ;
+    rdfs:domain uni:Course ;
+    rdfs:range xsd:integer .
+
+uni:buildingName a owl:DatatypeProperty ;
+    rdfs:domain uni:Building ;
+    rdfs:range xsd:string .
+
+uni:capacity a owl:DatatypeProperty ;
+    rdfs:domain uni:LectureHall ;
+    rdfs:range xsd:integer .
+
+uni:year a owl:DatatypeProperty ;
+    rdfs:domain uni:Student ;
+    rdfs:range xsd:integer .
+
+uni:birthdate a owl:DatatypeProperty ;
+    rdfs:domain uni:Person ;
+    rdfs:range xsd:date .
+
+# ============================================================
+# Individuals - Departments
+# ============================================================
+
+uni:ComputerScience a uni:Department ;
+    rdfs:label "Computer Science Department" ;
+    uni:headedBy uni:GitanjaliMondal .
+
+uni:Mathematics a uni:Department ;
+    rdfs:label "Mathematics Department" ;
+    uni:headedBy uni:AnantaDoshwami .
+
+uni:Physics a uni:Department ;
+    rdfs:label "Physics Department" ;
+    uni:headedBy uni:BiswajitMahapatra .
+
+# ============================================================
+# Individuals - Professors
+# ============================================================
+
+uni:AnantaGoshwami a uni:Professor ;
+    rdfs:label "Ananta Goshwami" ;
+    uni:name "Ananta Goshwami" ;
+    uni:employeeID "E001" ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:teaches uni:MATH101, uni:MATH201 .
+
+uni:KrishnadutBera a uni:Professor ;
+    rdfs:label "Krishnadut Bera" ;
+    uni:name "Krishnadut Bera" ;
+    uni:employeeID "E002" ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:teaches uni:CS301 .
+
+uni:GitanjaliMondal a uni:Professor ;
+    rdfs:label "Miss Gitanjali Mondal" ;
+    uni:name "Gitanjali Mondal" ;
+    uni:employeeID "E003" ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:teaches uni:CS201 .
+
+uni:PrithwishManna a uni:Professor ;
+    rdfs:label "Prithwish Manna" ;
+    uni:name "Prithwish Manna" ;
+    uni:employeeID "E004" ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:teaches uni:CS101 .
+
+uni:BiswajitMahapatra a uni:Professor ;
+    rdfs:label "Biswajit Mahapatra" ;
+    uni:name "Biswajit Mahapatra" ;
+    uni:employeeID "E005" ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:teaches uni:PHYS101, uni:PHYS201 .
+
+uni:AnantaDoshwami a uni:Professor ;
+    rdfs:label "Ananta Doshwami" ;
+    uni:name "Ananta Doshwami" ;
+    uni:employeeID "E006" ;
+    uni:belongsToDepartment uni:Mathematics .
+
+# ============================================================
+# Individuals - Courses
+# ============================================================
+
+uni:CS101 a uni:Course ;
+    rdfs:label "Introduction to Programming" ;
+    uni:courseCode "CS101" ;
+    uni:credits 3 ;
+    uni:taughtBy uni:PrithwishManna ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:locatedIn uni:LectureHall1 .
+
+uni:CS201 a uni:Course ;
+    rdfs:label "Data Structures" ;
+    uni:courseCode "CS201" ;
+    uni:credits 4 ;
+    uni:taughtBy uni:GitanjaliMondal ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:locatedIn uni:LectureHall2 ;
+    uni:hasPrerequisite uni:CS101 .
+
+uni:CS301 a uni:Course ;
+    rdfs:label "Algorithms" ;
+    uni:courseCode "CS301" ;
+    uni:credits 4 ;
+    uni:taughtBy uni:KrishnadutBera ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:locatedIn uni:LectureHall2 ;
+    uni:hasPrerequisite uni:CS201 .
+
+uni:MATH101 a uni:Course ;
+    rdfs:label "Calculus I" ;
+    uni:courseCode "MATH101" ;
+    uni:credits 4 ;
+    uni:taughtBy uni:AnantaGoshwami ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:locatedIn uni:LectureHall3 .
+
+uni:MATH201 a uni:Course ;
+    rdfs:label "Linear Algebra" ;
+    uni:courseCode "MATH201" ;
+    uni:credits 3 ;
+    uni:taughtBy uni:AnantaGoshwami ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:locatedIn uni:LectureHall3 ;
+    uni:hasPrerequisite uni:MATH101 .
+
+uni:PHYS101 a uni:Course ;
+    rdfs:label "Physics I" ;
+    uni:courseCode "PHYS101" ;
+    uni:credits 4 ;
+    uni:taughtBy uni:BiswajitMahapatra ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:locatedIn uni:Lab1 ;
+    uni:hasPrerequisite uni:MATH101 .
+
+uni:PHYS201 a uni:Course ;
+    rdfs:label "Physics II" ;
+    uni:courseCode "PHYS201" ;
+    uni:credits 4 ;
+    uni:taughtBy uni:BiswajitMahapatra ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:locatedIn uni:Lab1 ;
+    uni:hasPrerequisite uni:PHYS101 .
+
+# ============================================================
+# Individuals - Buildings
+# ============================================================
+
+uni:LectureHall1 a uni:LectureHall ;
+    rdfs:label "Lecture Hall 1" ;
+    uni:buildingName "LH1" ;
+    uni:capacity 100 .
+
+uni:LectureHall2 a uni:LectureHall ;
+    rdfs:label "Lecture Hall 2" ;
+    uni:buildingName "LH2" ;
+    uni:capacity 80 .
+
+uni:LectureHall3 a uni:LectureHall ;
+    rdfs:label "Lecture Hall 3" ;
+    uni:buildingName "LH3" ;
+    uni:capacity 120 .
+
+uni:Lab1 a uni:Lab ;
+    rdfs:label "Physics Lab 1" ;
+    uni:buildingName "Lab1" ;
+    uni:capacity 40 .
+
+uni:MainBuilding a uni:Faculty ;
+    rdfs:label "Main Building" ;
+    uni:buildingName "Main" .
+
+uni:CentralLibrary a uni:Library ;
+    rdfs:label "Central Library" ;
+    uni:buildingName "Library" .
+
+# ============================================================
+# Individuals - Students (35 from CSV)
+# ============================================================
+
+# --- Computer Science students (first 12) ---
+uni:S001 a uni:Student ;
+    rdfs:label "Subhasish Bhattacharya" ;
+    uni:name "Subhasish Bhattacharya" ;
+    uni:studentID "S001" ;
+    uni:birthdate "1999-03-26"^^xsd:date ;
+    uni:year 4 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:CS201, uni:CS301, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S002 a uni:Student ;
+    rdfs:label "Subhadip Bar" ;
+    uni:name "Subhadip Bar" ;
+    uni:studentID "S002" ;
+    uni:birthdate "2000-09-01"^^xsd:date ;
+    uni:year 3 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:CS201, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S003 a uni:Student ;
+    rdfs:label "Sahadev Ghorai" ;
+    uni:name "Sahadev Ghorai" ;
+    uni:studentID "S003" ;
+    uni:birthdate "2003-01-04"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S004 a uni:Student ;
+    rdfs:label "Raju Gorai" ;
+    uni:name "Raju Gorai" ;
+    uni:studentID "S004" ;
+    uni:birthdate "2003-04-03"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S005 a uni:Student ;
+    rdfs:label "Moupriya Ghorai" ;
+    uni:name "Moupriya Ghorai" ;
+    uni:studentID "S005" ;
+    uni:birthdate "2003-06-03"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S006 a uni:Student ;
+    rdfs:label "Shilpa Roy" ;
+    uni:name "Shilpa Roy" ;
+    uni:studentID "S006" ;
+    uni:birthdate "2003-09-21"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S007 a uni:Student ;
+    rdfs:label "Sourashis Samanta" ;
+    uni:name "Sourashis Samanta" ;
+    uni:studentID "S007" ;
+    uni:birthdate "2003-12-22"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S008 a uni:Student ;
+    rdfs:label "Sudip Khatua" ;
+    uni:name "Sudip Khatua" ;
+    uni:studentID "S008" ;
+    uni:birthdate "2003-12-31"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S009 a uni:Student ;
+    rdfs:label "Debshreya Jana" ;
+    uni:name "Debshreya Jana" ;
+    uni:studentID "S009" ;
+    uni:birthdate "2004-01-03"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S010 a uni:Student ;
+    rdfs:label "Soukat Samanta" ;
+    uni:name "Soukat Samanta" ;
+    uni:studentID "S010" ;
+    uni:birthdate "2004-01-18"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S011 a uni:Student ;
+    rdfs:label "Kaushik Giri" ;
+    uni:name "Kaushik Giri" ;
+    uni:studentID "S011" ;
+    uni:birthdate "2004-01-27"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+uni:S012 a uni:Student ;
+    rdfs:label "Arpita Sutradhar" ;
+    uni:name "Arpita Sutradhar" ;
+    uni:studentID "S012" ;
+    uni:birthdate "2004-04-11"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:ComputerScience ;
+    uni:enrolledIn uni:CS101, uni:MATH101 ;
+    uni:advisedBy uni:KrishnadutBera .
+
+# --- Mathematics students (next 12) ---
+uni:S013 a uni:Student ;
+    rdfs:label "Santanu Maji" ;
+    uni:name "Santanu Maji" ;
+    uni:studentID "S013" ;
+    uni:birthdate "2004-06-30"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201, uni:PHYS101 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S014 a uni:Student ;
+    rdfs:label "Amit Pramanik" ;
+    uni:name "Amit Pramanik" ;
+    uni:studentID "S014" ;
+    uni:birthdate "2004-08-04"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S015 a uni:Student ;
+    rdfs:label "Sushmita Patra" ;
+    uni:name "Sushmita Patra" ;
+    uni:studentID "S015" ;
+    uni:birthdate "2004-08-31"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S016 a uni:Student ;
+    rdfs:label "NANDADULAL GHORAI" ;
+    uni:name "NANDADULAL GHORAI" ;
+    uni:studentID "S016" ;
+    uni:birthdate "2004-09-07"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S017 a uni:Student ;
+    rdfs:label "Rumpa Mandal" ;
+    uni:name "Rumpa Mandal" ;
+    uni:studentID "S017" ;
+    uni:birthdate "2004-09-21"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S018 a uni:Student ;
+    rdfs:label "Nikita Das" ;
+    uni:name "Nikita Das" ;
+    uni:studentID "S018" ;
+    uni:birthdate "2004-10-02"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S019 a uni:Student ;
+    rdfs:label "Rani Mukherjee" ;
+    uni:name "Rani Mukherjee" ;
+    uni:studentID "S019" ;
+    uni:birthdate "2004-10-16"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S020 a uni:Student ;
+    rdfs:label "Rajesh Jana" ;
+    uni:name "Rajesh Jana" ;
+    uni:studentID "S020" ;
+    uni:birthdate "2004-10-18"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S021 a uni:Student ;
+    rdfs:label "Anik Patra" ;
+    uni:name "Anik Patra" ;
+    uni:studentID "S021" ;
+    uni:birthdate "2004-12-05"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S022 a uni:Student ;
+    rdfs:label "Poulami Das" ;
+    uni:name "Poulami Das" ;
+    uni:studentID "S022" ;
+    uni:birthdate "2005-01-01"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S023 a uni:Student ;
+    rdfs:label "Sudipta Dolai" ;
+    uni:name "Sudipta Dolai" ;
+    uni:studentID "S023" ;
+    uni:birthdate "2005-01-04"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+uni:S024 a uni:Student ;
+    rdfs:label "Arpan Das" ;
+    uni:name "Arpan Das" ;
+    uni:studentID "S024" ;
+    uni:birthdate "2005-01-09"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Mathematics ;
+    uni:enrolledIn uni:MATH101, uni:MATH201 ;
+    uni:advisedBy uni:AnantaGoshwami .
+
+# --- Physics students (last 11) ---
+uni:S025 a uni:Student ;
+    rdfs:label "Labani Singha" ;
+    uni:name "Labani Singha" ;
+    uni:studentID "S025" ;
+    uni:birthdate "2005-02-03"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:PHYS201, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S026 a uni:Student ;
+    rdfs:label "Basanti Samanta" ;
+    uni:name "Basanti Samanta" ;
+    uni:studentID "S026" ;
+    uni:birthdate "2005-02-25"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S027 a uni:Student ;
+    rdfs:label "Sudipa Sahoo" ;
+    uni:name "Sudipa Sahoo" ;
+    uni:studentID "S027" ;
+    uni:birthdate "2005-04-01"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S028 a uni:Student ;
+    rdfs:label "Sucharita Kundu" ;
+    uni:name "Sucharita Kundu" ;
+    uni:studentID "S028" ;
+    uni:birthdate "2005-04-08"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S029 a uni:Student ;
+    rdfs:label "AKASH PRAMANIK" ;
+    uni:name "AKASH PRAMANIK" ;
+    uni:studentID "S029" ;
+    uni:birthdate "2005-05-21"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S030 a uni:Student ;
+    rdfs:label "Puja Dhara" ;
+    uni:name "Puja Dhara" ;
+    uni:studentID "S030" ;
+    uni:birthdate "2005-06-30"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S031 a uni:Student ;
+    rdfs:label "Suman Maity" ;
+    uni:name "Suman Maity" ;
+    uni:studentID "S031" ;
+    uni:birthdate "2005-07-20"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S032 a uni:Student ;
+    rdfs:label "Priya Bera" ;
+    uni:name "Priya Bera" ;
+    uni:studentID "S032" ;
+    uni:birthdate "2005-07-31"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S033 a uni:Student ;
+    rdfs:label "Sabetun Khatun" ;
+    uni:name "Sabetun Khatun" ;
+    uni:studentID "S033" ;
+    uni:birthdate "2005-08-05"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S034 a uni:Student ;
+    rdfs:label "Manoram Pal" ;
+    uni:name "Manoram Pal" ;
+    uni:studentID "S034" ;
+    uni:birthdate "2005-08-07"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+uni:S035 a uni:Student ;
+    rdfs:label "Shreetama Das" ;
+    uni:name "Shreetama Das" ;
+    uni:studentID "S035" ;
+    uni:birthdate "2005-10-17"^^xsd:date ;
+    uni:year 1 ;
+    uni:belongsToDepartment uni:Physics ;
+    uni:enrolledIn uni:PHYS101, uni:MATH101 ;
+    uni:advisedBy uni:BiswajitMahapatra .
+
+# ============================================================
+# Individuals - Staff
+# ============================================================
+
+uni:Jane a uni:Staff ;
+    rdfs:label "Jane Doe" ;
+    uni:name "Jane Doe" ;
+    uni:employeeID "E101" ;
+    uni:belongsToDepartment uni:ComputerScience .
+
+uni:Mike a uni:Staff ;
+    rdfs:label "Mike Lee" ;
+    uni:name "Mike Lee" ;
+    uni:employeeID "E102" ;
+    uni:belongsToDepartment uni:Mathematics .
